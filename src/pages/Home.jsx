@@ -1,8 +1,7 @@
-import MovieCard from "../components/MovieCard"
+import MovieCard from "../components/MovieCard";
 import { useState, useEffect } from "react";
 import { searchMovies, getPopularMovies } from "../services/api";
-import "../css/Home.css"
-
+import "../css/Home.css";
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,20 +18,33 @@ function Home() {
         console.log(err);
         setError("Failed to load movies");
       } finally {
+        setLoading(false);
       }
     };
     loadPopularMovies();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefaul();
-   if(!searchQuery.trim) return
-    if (loading) return
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    if (loading) return;
+
     setLoading(true);
+
+    try {
+      const searchedMovies = await searchMovies(searchQuery);
+      console.log("Searched Movies:", searchedMovies);
+      setMovies(searchedMovies);
+      setError(null);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to search movies");
+    } finally {
+      setLoading(false);
+    }
 
     setSearchQuery("");
   };
-
 
   return (
     <div className="home">
